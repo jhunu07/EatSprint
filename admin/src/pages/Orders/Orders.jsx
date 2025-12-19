@@ -62,9 +62,12 @@ const Order = () => {
             <p>Items : {order.items.length}</p>
             <p>{currency}{order.amount}</p>
             <select onChange={(e) => statusHandler(e, order._id)} value={order.status} name="" id="">
-              <option value="Food Processing">Food Processing</option>
+              <option value="Placed">Placed</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Prepared">Prepared</option>
               <option value="Out for delivery">Out for delivery</option>
               <option value="Delivered">Delivered</option>
+              <option value="Food Processing">Food Processing</option>
             </select>
           </div>
         ))}

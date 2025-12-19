@@ -44,6 +44,41 @@
   font-size: 14px;
 }
 
+.progress-steps {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.progress-steps .step{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.step-dot{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#ecf0f1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  color:#7f8c8d;
+}
+
+.step.done .step-dot{
+  background:#2ecc71;
+  color:white;
+}
+
+.step-label{
+  font-size:13px;
+  color:#333;
+}
+
 .status-dot {
   margin-right: 5px;
 }
