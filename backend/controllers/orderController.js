@@ -13,14 +13,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const placeOrder = async (req, res) => {
   const frontend_url = "http://localhost:5173";
   try {
+    // Persist order in DB with provided paymentMethod (default: online)
+    const paymentMethod = req.body.paymentMethod || 'online';
+
     const newOrder = new orderModel({
       userId: req.userId,
       items: req.body.items,
       amount: req.body.amount / 100, // Convert back to rupees for storage
       address: req.body.address,
+      paymentMethod,
+      // For COD orders, keep payment false and update status accordingly
+      status: paymentMethod === 'cod' ? 'COD - Pending' : undefined,
     });
 
     await newOrder.save();
+
+    // If payment method is COD, do not create a Stripe session — return success
+    if (paymentMethod === 'cod') {
+      return res.json({ success: true, cod: true, message: 'Order placed (COD)', orderId: newOrder._id });
+    }
 
     // Create line items for Stripe with correct amount in paise
     const line_items = req.body.items.map((item) => ({

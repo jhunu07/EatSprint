@@ -20,6 +20,9 @@ const PlaceOrder = () => {
     phone: '',
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('online');
+  const [codConfirmation, setCodConfirmation] = useState({ show: false, orderId: null, message: '' });
+
   const onChangeHandler = (event) => {
     const { name, value } = event.target;
     setData((prevData) => ({ ...prevData, [name]: value }));
@@ -46,6 +49,7 @@ const PlaceOrder = () => {
         address: data,
         items: orderItems,
         amount: Math.round((getTotalCartAmount() + 2) * 100), // Convert to paise
+          paymentMethod,
       };
 
       // Only send Authorization header if token is valid
@@ -54,13 +58,17 @@ const PlaceOrder = () => {
         config.headers = { Authorization: `Bearer ${token}` };
       }
 
-      const response = await axios.post(
-        `${url}/api/order/place`,
-        orderData,
-        config
-      );
-       if (response.data.success) {
+      const response = await axios.post(`${url}/api/order/place`, orderData, config);
+
+      if (response.data.success && response.data.session_url) {
         window.location.replace(response.data.session_url);
+      } else if (response.data.success && response.data.cod) {
+        // COD order placed — show confirmation banner (user can view orders)
+        setCodConfirmation({ show: true, orderId: response.data.orderId, message: response.data.message || 'Order placed (Cash on Delivery).' });
+        // Auto-navigate to My Orders after 4 seconds
+        setTimeout(() => {
+          navigate('/myorders');
+        }, 4000);
       } else {
         alert(response.data.message || 'Failed to place order. Please try again.');
       }
@@ -85,6 +93,18 @@ const navigate = useNavigate()
 
   return (
     <form onSubmit={handlePlaceOrder} className="place-order">
+      {codConfirmation.show && (
+        <div className="cod-confirmation">
+          <div className="cod-content">
+            <h3>Order placed</h3>
+            <p>{codConfirmation.message}</p>
+            {codConfirmation.orderId && <p>Order ID: <b>{codConfirmation.orderId}</b></p>}
+            <div className="actions">
+              <button type="button" className="btn" onClick={() => navigate('/myorders')}>View My Orders</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="place-order-left">
         <p className="title">Delivery Information</p>
         <div className="multi-fields">
@@ -142,7 +162,7 @@ const navigate = useNavigate()
         <div className="multi-fields">
           <input
             required
-            name="pincode"
+            name="zipcode"
             value={data.zipcode}
             onChange={onChangeHandler}
             type="text"
@@ -156,6 +176,29 @@ const navigate = useNavigate()
             type="text"
             placeholder="Country"
           />
+        </div>
+        <div className="payment-method">
+          <p>Payment method</p>
+          <label>
+            <input
+              type="radio"
+              name="payment"
+              value="online"
+              checked={paymentMethod === 'online'}
+              onChange={() => setPaymentMethod('online')}
+            />{' '}
+            Online
+          </label>
+          <label style={{marginLeft:16}}>
+            <input
+              type="radio"
+              name="payment"
+              value="cod"
+              checked={paymentMethod === 'cod'}
+              onChange={() => setPaymentMethod('cod')}
+            />{' '}
+            Cash on Delivery (COD)
+          </label>
         </div>
         <input
           required
