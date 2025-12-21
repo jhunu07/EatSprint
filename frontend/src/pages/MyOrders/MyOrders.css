@@ -119,6 +119,43 @@
   cursor: not-allowed;
 }
 
+.order-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invoice-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+}
+
+.invoice-button:hover {
+  background: linear-gradient(135deg, #e55a2b, #e8841a);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.4);
+}
+
+.invoice-button:active {
+  transform: translateY(0);
+}
+
+.invoice-button svg {
+  flex-shrink: 0;
+}
+
 .container {
   display: flex;
   flex-direction: column;
