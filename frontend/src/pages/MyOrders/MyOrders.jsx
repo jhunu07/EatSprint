@@ -12,6 +12,44 @@ const MyOrders = () => {
   const [loading, setLoading] = useState(true);
   const [trackedOrderId, setTrackedOrderId] = useState(null);
 
+  // Check if order can be cancelled (before admin confirmation)
+  const canCancelOrder = (status) => {
+    const s = (status || '').toLowerCase();
+    return s.includes('food processing') || 
+           s.includes('pending') || 
+           s.includes('placed') ||
+           s === 'cod - pending';
+  };
+
+  // Cancel order handler
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) {
+      return;
+    }
+    
+    try {
+      const response = await axios.post(
+        `${url}/api/order/cancel`,
+        { orderId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      if (response.data.success) {
+        alert('Order cancelled successfully');
+        fetchOrders(); // Refresh orders
+      } else {
+        alert(response.data.message || 'Failed to cancel order');
+      }
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      alert('Failed to cancel order. Please try again.');
+    }
+  };
+
   const generateInvoice = (order) => {
     try {
       const doc = new jsPDF();
@@ -301,10 +339,10 @@ const MyOrders = () => {
               <div className="order-actions">
                 <button
                   className={`track-button ${order.status.toLowerCase()}`}
-                  disabled={order.status === "Delivered"}
+                  disabled={order.status === "Delivered" || order.status === "Cancelled"}
                   onClick={() => setTrackedOrderId(trackedOrderId === order._id ? null : order._id)}
                 >
-                  {trackedOrderId === order._id ? 'Hide Track' : (order.status === 'Delivered' ? 'Delivered' : 'Track Order')}
+                  {trackedOrderId === order._id ? 'Hide Track' : (order.status === 'Delivered' ? 'Delivered' : order.status === 'Cancelled' ? 'Cancelled' : 'Track Order')}
                 </button>
                 <button
                   className="invoice-button"
@@ -318,6 +356,20 @@ const MyOrders = () => {
                   </svg>
                   Invoice
                 </button>
+                {canCancelOrder(order.status) && order.status !== 'Cancelled' && (
+                  <button
+                    className="cancel-button"
+                    onClick={() => handleCancelOrder(order._id)}
+                    title="Cancel Order"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    Cancel
+                  </button>
+                )}
               </div>
             </div>
           ))

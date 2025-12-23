@@ -138,6 +138,15 @@ const StoreContextProvider = (props) => {
     return total;
   };
 
+  // ✅ Total cart item count
+  const getTotalCartItems = () => {
+    let count = 0;
+    for (const itemId in cartItems) {
+      count += cartItems[itemId];
+    }
+    return count;
+  };
+
   const contextValue = {
     food_list,
     cartItems,
@@ -145,6 +154,7 @@ const StoreContextProvider = (props) => {
     addToCart,
     removeFromCart,
     getTotalCartAmount,
+    getTotalCartItems,
     url,
     token,
     setToken,

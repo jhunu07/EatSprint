@@ -48,7 +48,7 @@ const PlaceOrder = () => {
          const orderData = {
         address: data,
         items: orderItems,
-        amount: Math.round((getTotalCartAmount() + 2) * 100), // Convert to paise
+        amount: Math.round(getTotalCartAmount() * 100), // Convert to paise (no delivery fee)
           paymentMethod,
       };
 
@@ -78,8 +78,8 @@ const PlaceOrder = () => {
     }
   };
 
-  const deliveryFee = getTotalCartAmount() === 0 ? 0 : 2;
-  const totalAmount = getTotalCartAmount() + deliveryFee;
+  const deliveryFee = 0; // Free delivery
+  const totalAmount = getTotalCartAmount();
  
 const navigate = useNavigate()
   useEffect(()=>{
@@ -220,7 +220,7 @@ const navigate = useNavigate()
           <hr />
           <div className="cart-total-details">
             <p> Delivery Fee</p>
-            <p>₹{deliveryFee}</p>
+            <p style={{color: 'green'}}>FREE</p>
           </div>
           <hr />
           <div className="cart-total-details">

@@ -45,17 +45,7 @@ const placeOrder = async (req, res) => {
       quantity: item.quantity,
     }));
 
-    // Add delivery fee (₹2 = 200 paise)
-    line_items.push({
-      price_data: {
-        currency: "inr",
-        product_data: {
-          name: "Delivery charges",
-        },
-        unit_amount: 200, // ₹2 in paise
-      },
-      quantity: 1,
-    });
+    // Free delivery - no delivery charges added
 
     const session = await stripe.checkout.sessions.create({
       line_items,
@@ -130,7 +120,46 @@ const listOrders = async (req,res) =>{
   }
 }
 
+// api for user to cancel order (only before admin confirms)
+const cancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await orderModel.findById(orderId);
+    
+    if (!order) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+    
+    // Check if user owns this order
+    if (order.userId !== req.userId) {
+      return res.json({ success: false, message: "Unauthorized" });
+    }
+    
+    // Check if order can be cancelled (only before confirmation)
+    const status = (order.status || '').toLowerCase();
+    const canCancel = status.includes('food processing') || 
+                      status.includes('pending') || 
+                      status.includes('placed') ||
+                      status === 'cod - pending';
+    
+    if (!canCancel) {
+      return res.json({ 
+        success: false, 
+        message: "Order cannot be cancelled after confirmation" 
+      });
+    }
+    
+    // Update order status to cancelled
+    await orderModel.findByIdAndUpdate(orderId, { status: "Cancelled" });
+    
+    res.json({ success: true, message: "Order cancelled successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error cancelling order" });
+  }
+}
 
-export { placeOrder,verifyOrder,userOrders,listOrders,updateStatus }
+
+export { placeOrder,verifyOrder,userOrders,listOrders,updateStatus,cancelOrder }
 
 
