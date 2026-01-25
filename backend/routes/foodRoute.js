@@ -7,11 +7,16 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
 const foodRouter = express.Router();
 
 // Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET_KEY
-});
+try {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET_KEY
+  });
+  console.log('✅ Cloudinary configured');
+} catch (error) {
+  console.error('⚠️ Cloudinary config error:', error.message);
+}
 
 // Allowed file types
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];

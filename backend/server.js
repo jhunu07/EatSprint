@@ -14,6 +14,11 @@ import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+// Log environment for debugging
+console.log('🔧 Environment:', process.env.NODE_ENV);
+console.log('🔧 MongoDB:', process.env.MONGO_URL ? 'Set' : 'Missing');
+console.log('🔧 Cloudinary Name:', process.env.CLOUDINARY_NAME ? 'Set' : 'Missing');
+
 const app = express();
 const port = process.env.PORT || 5001;
 
@@ -108,7 +113,9 @@ if (isDevelopment) {
 }
 
 // DB connection
-connectDB();
+connectDB().catch(error => {
+  console.error('❌ Database connection failed:', error.message);
+});
 
 // Static folder for OLD images (temporary - for migration)
 // New uploads go to Cloudinary, but old images still work from uploads folder
