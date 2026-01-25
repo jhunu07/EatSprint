@@ -110,7 +110,8 @@ if (isDevelopment) {
 // DB connection
 connectDB();
 
-// Static folder for images
+// Static folder for OLD images (temporary - for migration)
+// New uploads go to Cloudinary, but old images still work from uploads folder
 app.use('/images', express.static(path.join(__dirname, 'uploads')));
 
 // API routes
@@ -133,7 +134,12 @@ app.get('/',(req,res)=>{
     res.send("API working successfully")
 })
 
-app.listen(port, () => {
-  console.log(` Server started on http://localhost:${port}`);
-  
-});
+// Export for Vercel serverless
+export default app;
+
+// Only listen on port if not in serverless environment  
+if (process.env.VERCEL !== '1') {
+  app.listen(port, () => {
+    console.log(`🚀 Server started on http://localhost:${port}`);
+  });
+}

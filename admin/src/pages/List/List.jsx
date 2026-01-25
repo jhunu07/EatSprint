@@ -10,6 +10,14 @@ const List = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Helper to get correct image URL
+  const getImageUrl = (img) => {
+    if (img && (img.startsWith('http://') || img.startsWith('https://'))) {
+      return img;
+    }
+    return `${url}/images/${img}`;
+  };
+
   const fetchList = async () => {
     try {
       const response = await axios.get(`${url}/api/food/list`)
@@ -78,7 +86,7 @@ const List = () => {
         {filteredList.map((item, index) => {
           return (
             <div key={index} className='list-table-format'>
-              <img src={`${url}/images/` + item.image} alt="" />
+              <img src={getImageUrl(item.image)} alt={item.name} onError={(e) => e.target.style.opacity = 0.3} />
               <p>{item.name}</p>
               <p>{item.category}</p>
               <p>{currency}{item.price}</p>
