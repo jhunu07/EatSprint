@@ -9,9 +9,6 @@ import foodRouter from './routes/foodRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 
-import path from 'path';
-import { fileURLToPath } from 'url';
-
 dotenv.config();
 
 // Log environment for debugging
@@ -21,9 +18,6 @@ console.log('🔧 Cloudinary Name:', process.env.CLOUDINARY_NAME ? 'Set' : 'Miss
 
 const app = express();
 const port = process.env.PORT || 5001;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Security Headers
 app.use(helmet({
@@ -116,10 +110,6 @@ if (isDevelopment) {
 connectDB().catch(error => {
   console.error('❌ Database connection failed:', error.message);
 });
-
-// Static folder for OLD images (temporary - for migration)
-// New uploads go to Cloudinary, but old images still work from uploads folder
-app.use('/images', express.static(path.join(__dirname, 'uploads')));
 
 // API routes
 app.use('/api/user', authLimiter, userRouter);
